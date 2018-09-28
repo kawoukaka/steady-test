@@ -15,7 +15,7 @@ after_success:
 - pip install awscli
 - export PATH=$PATH:$HOME/.local/bin
 - aws ecr create-repository --repository-name steady-test --region us-east-1
-- eval $(aws ecr get-login --region us-east-1 --registry-ids 730440975639)
+- eval $(aws ecr get-login --region us-east-1 --registry-ids 730440975639 --no-include-email)
 - docker build -t steady-test .
 - docker tag steady-test:latest 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
 - docker push 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
