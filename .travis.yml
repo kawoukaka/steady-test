@@ -1,0 +1,17 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+script:
+  - echo "Unit Test!"
+
+after_success:
+  - pip install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin
+  - eval $(aws ecr get-login --region $AWS_REGION)
+  - docker build -t steady-test .
+  - docker tag steady-test:latest 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
+  - docker push 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
