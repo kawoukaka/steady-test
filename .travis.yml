@@ -1,0 +1,22 @@
+sudo: required
+
+language: python
+
+env:
+  - APP_NAME=steady-test
+  - AWS_ECR_ACCOUNT=730440975639
+  - AWS_REGION=us-east-1
+
+services:
+  - docker
+
+script:
+  - echo "Unit Test!"
+
+after_success:
+  - pip install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin
+  - eval $(aws ecr get-login --region $AWS_REGION)
+  - docker build -t $APP_NAME .
+  - docker tag $APP_NAME:latest $AWS_ECR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/$APP_NAMEt:latest
+  - docker push $AWS_ECR_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
