@@ -25,11 +25,4 @@ after_success:
 - docker build -t steady-test .
 - docker tag steady-test:latest 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
 - docker push 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
-
-deploy:
-  stage: deploy
-  provider: releases
-  script:
-    - aws ecs update-service --cluster steady-test --service steady-test-service --force-new-deployment
-  only:
-    - master
+- aws ecs update-service --cluster steady-test --service steady-test-service --force-new-deployment
