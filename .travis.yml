@@ -25,4 +25,6 @@ after_success:
 - docker build -t steady-test .
 - docker tag steady-test:latest 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
 - docker push 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
-- aws ecs update-service --cluster steady-test --service steady-test-service --force-new-deployment
+- TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition steady-test --region us-east-1)
+- aws ecs register-task-definition --region us-east-1 --family steady-test -container-definitions ${TASK_DEFINITION}
+- aws ecs update-service --cluster steady-test --service steady-test-service --task-definition steady-test --force-new-deployment
