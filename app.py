@@ -12,7 +12,7 @@ def hello():
 @app.route('/<name>', methods=['GET'])
 def hello_name(name):
     # name is variable not string, corrected
-    return "Hello {}! Welcome!".format(name)
+    return "Hello {}! Welcome".format(name)
 
 if __name__ == "__main__":
     # server_tier is to select different host address, local or server
