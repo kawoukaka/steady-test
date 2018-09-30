@@ -36,6 +36,7 @@ build:
 
 deploy:
   stage: deploy
+  provider: releases
   script:
     - aws ecs update-service --cluster steady-test --service steady-test-service --force-new-deployment
   only:
