@@ -10,4 +10,4 @@ Create AWS ECS and AWS ECR
 Pipeline:
 TravisCI create docker image push to AWS ECR then deploy to AWS ECS
 
-public IP:http://34.204.107.57:5000/
+Test Url:http://ec2-35-170-63-136.compute-1.amazonaws.com:5000
