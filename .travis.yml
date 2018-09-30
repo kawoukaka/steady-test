@@ -1,22 +1,42 @@
 branches:
   only:
   - master
+
 sudo: required
+
 language: python
+
 env:
   global:
   - secure: VEe7RFkESj0cM5gUmaCziNWhBQDXzWX+KkGh/qdAGiQROL9zryu6UNmSKw1vr1cLJhxMyLTj4g8XrRKOxUzdKp/cz9DV1DwvADRJ+dAK4LIYDgmstdaTY3SuykgDvEefs94wZiOjZnaQFz9ZYXVRCwmvspsG7OshPoPFRm7C5dKeuOBOQ9QmWI60s6KvoFvi28bjKyKFtX+M8DRt8R6Vzz/jqTHkXow0DgQeWjpQwKIG01Edf8PawwqaHqGh2dqmm1Gzig0hwxZd4oZaOskZjRwzlbhuTkyyXIjtbFMXFhFLYHCaxBiBEr/cXnu1MdZ5li4zRtUETKhAFfT9OVpbfXWbNZlwie14sFU9e1vOOclmJ6ILvy8m6joWv9uek+4rnXh0w01hvr7TBXtYzYuL6RQCQdLO5ZswnkHkQVbnJenZmov4mOl5r3kx+MT1YEDbvCqFYbGNh1nEDgyohGul94Jlt/yqYmc/LwyPyAX2sE4tRvpnrpXp/HjvzFR9JiN5deoEA4T8U5+4XHQRzgXCsBO+0pj2dXm86NUpHrJhkHZqU3bvdE9F/bFHv+WG9FY2GXvSq/Lfnzd1THtvHRLWuKPon/cyKWjtuGH13GshNldEThvMzk/GbAXQa5OJd5g6RGuWDd0PxgSkNTMbumesBJ9iMCJnPYyiIt3DJqbMqX8=
   - secure: iDZnXsvLoMGwjoS4s/bKvY4/Jc8N1oqi8NbyhWaPPsWRQVIkgIjAGuHXiIFAzfOaRlvUbVnOmWRe5JHDVMR+fKWIoZ5Mx1ut863mmIM+NHaP7XAhsnXn038s/Ys9sC45rY83AxshVlQp7XAYXWzyxt8JTq85ZaakRpHc27A/PD/atJQ2k9ezmnAoiCVePmSAURwCaKs/1rwQBo7DcmJFhInKtdYCMINxMGGs6aFMXLOpd9u1J4p+/I9W8Qv/+naMZBuQphGJ8GFA8aFOVFyVo/6Dslj4Iett6g8E/dJ3Dv/5figo8aV610Tnv/k5hjmKkuwzef1WIz4aD4QLcNz7RMTKHu3cgTYqh1NCuHjERHFZ7SPVhvRVTXi4E/inDF5cXj7GRZqyNMUrnJmKz3aW/YxFYoII6NSOPgQW67mUD2YJZef0Gx38OQPikov1F3pMp7Fw5RCOpvewn34tniqkAQwatelPsGYMmC0gxkU3imyLA1KA2B5lAbT0Z38tsq5Ueft73y4glBjUoO73tqUBT9aNPH1cLPmWH7cl8lox5YWx0PWGDWN1adkHgL/KMp8gGMmO8D4heaGVnyNtfeb/owSUGmNqj9UKheSTjmv0t79gK3gsGpy9bfX+3Bhq5fok+FSExRqxtVkZaTkBbZDeHH9iiirZPcySeMzd8vzXaSs=
+
 services:
 - docker
+
 script:
 - echo "Unit Test!"
+
 after_success:
 - pip install awscli
 - export PATH=$PATH:$HOME/.local/bin
-- aws ecr create-repository --repository-name steady-test --region us-east-1
-- eval $(aws ecr get-login --region us-east-1 --registry-ids 730440975639 --no-include-email)
-- docker build -t steady-test .
-- docker tag steady-test:latest 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
-- docker push 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
 
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+  - aws ecr create-repository --repository-name steady-test --region us-east-1
+  - eval $(aws ecr get-login --region us-east-1 --registry-ids 730440975639 --no-include-email)
+  - docker build -t steady-test .
+  - docker tag steady-test:latest 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
+  - docker push 730440975639.dkr.ecr.us-east-1.amazonaws.com/steady-test:latest
+
+deploy:
+  stage: deploy
+  script:
+    - aws ecs update-service --cluster steady-test --service steady-test-service --force-new-deployment
+  only:
+    - master
